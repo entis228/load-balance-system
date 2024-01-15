@@ -5,7 +5,6 @@ import com.entis.testspring.entity.dto.TaskResponse;
 import com.entis.testspring.service.TaskService;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

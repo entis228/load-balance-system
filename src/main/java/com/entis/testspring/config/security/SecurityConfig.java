@@ -13,12 +13,10 @@ import com.entis.testspring.service.TaskService;
 import com.entis.testspring.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +25,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -75,7 +71,10 @@ public class SecurityConfig {
             requests -> requests
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.POST, Routes.TOKEN, Routes.TOKEN + "/refresh").permitAll()
-                .requestMatchers(Routes.USERS + "/**").hasRole(MANAGER_ROLE)
+                .requestMatchers(HttpMethod.PUT, Routes.USERS + "/**").hasRole(MANAGER_ROLE)
+                .requestMatchers(HttpMethod.DELETE, Routes.USERS + "/**").hasRole(MANAGER_ROLE)
+                .requestMatchers(HttpMethod.GET, Routes.USERS + "/current")
+                .hasAnyRole(MANAGER_ROLE, DEVELOPER_ROLE)
                 .anyRequest().authenticated())
         .addFilter(jwtAuthenticationFilter(authenticationManager))
         .addFilter(jwtAuthorizationFilter(authenticationManager))
@@ -92,7 +91,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder){
+  public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
     authProvider.setUserDetailsService(userService);
     authProvider.setPasswordEncoder(passwordEncoder);
@@ -100,13 +99,14 @@ public class SecurityConfig {
   }
 
   private JWTAuthenticationFilter jwtAuthenticationFilter(
-      AuthenticationManager authenticationManager) throws Exception {
+      AuthenticationManager authenticationManager) {
     var filter = new JWTAuthenticationFilter(authenticationManager, objectMapper);
     filter.setFilterProcessesUrl(Routes.TOKEN);
     return filter;
   }
 
-  private JWTAuthorizationFilter jwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+  private JWTAuthorizationFilter jwtAuthorizationFilter(
+      AuthenticationManager authenticationManager) {
     return new JWTAuthorizationFilter(authenticationManager, securityProperties);
   }
 

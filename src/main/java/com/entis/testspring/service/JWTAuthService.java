@@ -10,7 +10,6 @@ import com.entis.testspring.entity.db.auth.RefreshToken;
 import com.entis.testspring.entity.dto.AccessTokenResponse;
 import com.entis.testspring.exception.InvalidRefreshTokenException;
 import com.entis.testspring.repository.RefreshTokenRepository;
-import com.entis.testspring.repository.UserRepository;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -19,11 +18,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
